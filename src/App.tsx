@@ -1,9 +1,45 @@
 import './App.css'
+import {useState} from "react";
 
 interface Faq {
     id: number
     question: string
     answer: string
+}
+
+interface FaqItemProps {
+    faq: Faq
+    isOpen: boolean
+    onToggle: () => void
+}
+
+const FaqItem = ({faq, isOpen, onToggle}: FaqItemProps) => {
+    return (
+        <section
+            aria-labelledby={`faq-${faq.id}`}
+            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7"
+        >
+            <h2
+                id={`faq-${faq.id}`}
+                className="text-lg font-semibold leading-snug text-slate-900"
+            >
+                <button
+                    className="flex w-full items-center justify-between gap-4 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-4"
+                    aria-controls={`faq-answer-${faq.id}`}
+                    type="button" onClick={onToggle} aria-expanded={isOpen}>
+                    <span>{faq.question}</span>
+                    <span aria-hidden="true" className="shrink-0 text-indigo-600">{isOpen ? "−" : "+"}</span>
+                </button>
+            </h2>
+
+            <p
+                id={`faq-answer-${faq.id}`}
+                hidden={!isOpen}
+                className="mt-3 text-base leading-relaxed text-slate-600">
+                {faq.answer}
+            </p>
+        </section>
+    )
 }
 
 const faqs: Faq[] = [
@@ -34,6 +70,11 @@ const faqs: Faq[] = [
 ];
 
 function App() {
+    const [openFaqId, setOpenFaqId] = useState<number | null>(null)
+
+    function handleToggle(id: number) {
+        setOpenFaqId(currentId => currentId === id ? null : id)
+    }
 
     return (
         <main className="min-h-screen bg-slate-50 px-4 py-12 sm:px-6 sm:py-20">
@@ -54,22 +95,8 @@ function App() {
 
                 <div className="space-y-4">
                     {faqs.map((faq) => (
-                        <section
-                            key={faq.id}
-                            aria-labelledby={`faq-${faq.id}`}
-                            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7"
-                        >
-                            <h2
-                                id={`faq-${faq.id}`}
-                                className="text-lg font-semibold leading-snug text-slate-900"
-                            >
-                                {faq.question}
-                            </h2>
-
-                            <p className="mt-3 text-base leading-relaxed text-slate-600">
-                                {faq.answer}
-                            </p>
-                        </section>
+                        <FaqItem key={faq.id} faq={faq} isOpen={openFaqId === faq.id}
+                                 onToggle={() => handleToggle(faq.id)}/>
                     ))}
                 </div>
 
